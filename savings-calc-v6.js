@@ -13454,7 +13454,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
           textStrokeColor: "",
           padding: 3,
           display: !0,
-          autoSkip: !0,
+          autoSkip: !1,
           autoSkipPadding: 3,
           labelOffset: 0,
           callback: e2.formatters.values,
@@ -24668,6 +24668,23 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
         maintainAspectRatio: !1,
         plugins: {
           legend: { display: !0 },
+          tooltip: {
+            enabled: !0,
+            mode: "index",
+            intersect: !1,
+            backgroundColor: "rgba(0,0,0,0.8)",
+            titleColor: "#fff",
+            bodyColor: "#fff",
+            borderColor: "rgba(255,255,255,0.2)",
+            borderWidth: 1,
+            padding: 12,
+            displayColors: !0,
+            callbacks: {
+              label: function (s) {
+                return s.dataset.label + ": " + s.formattedValue;
+              },
+            },
+          },
           chartAreaBorder: {
             borderColor: "red",
             borderWidth: 0,
