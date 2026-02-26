@@ -13454,7 +13454,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
           textStrokeColor: "",
           padding: 3,
           display: !0,
-          autoSkip: !1,
+          autoSkip: !0,
           autoSkipPadding: 3,
           labelOffset: 0,
           callback: e2.formatters.values,
@@ -24658,38 +24658,40 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
     }
     let e = r.getContext("2d"),
       t = Xe * 12,
-      i = nk(e, r.height, "rgba(51,182,160)"),
-      n = nk(e, r.height, "rgba(217,108,87)"),
+      i = nk(e, r.height, "primary"),
+      n = nk(e, r.height, "accent"),
       a = uie(t, i, n);
     dt = new ak(e, {
       type: "line",
       data: a,
       options: {
         maintainAspectRatio: !1,
+        interaction: {
+          mode: "index",
+          intersect: false,
+        },
         plugins: {
-          legend: { display: !0 },
+          legend: { display: !1 },
           tooltip: {
-            enabled: !0,
-            mode: "index",
-            intersect: !1,
-            backgroundColor: "rgba(0,0,0,0.8)",
-            titleColor: "#fff",
-            bodyColor: "#fff",
-            borderColor: "rgba(255,255,255,0.2)",
-            borderWidth: 1,
-            padding: 12,
-            displayColors: !0,
-            callbacks: {
-              label: function (s) {
-                return s.dataset.label + ": " + s.formattedValue;
-              },
+            backgroundColor: "#14161d",
+            titleColor: "#ffffff",
+            bodyColor: "#ffffff",
+            titleFont: {
+              family: "Inter, Pptelegraf, sans-serif",
+              size: 13,
+              weight: "600",
             },
-          },
-          chartAreaBorder: {
-            borderColor: "red",
-            borderWidth: 0,
-            borderDash: [5, 5],
-            borderDashOffset: 2,
+            bodyFont: {
+              family: "Inter, Pptelegraf, sans-serif",
+              size: 12,
+            },
+            padding: 12,
+            cornerRadius: 8,
+            displayColors: true,
+            boxPadding: 4,
+            caretSize: 6,
+            borderColor: "rgba(135,150,189,0.2)",
+            borderWidth: 1,
           },
         },
         scales: {
@@ -24700,16 +24702,30 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                   c = Math.floor(d / 2);
                 return u % 4 ? this.getLabelForValue(s) : "";
               },
+              color: "#8796bd",
+              font: {
+                family: "Inter, Pptelegraf, sans-serif",
+                size: 11,
+              },
+              maxRotation: 0,
             },
             grid: { display: !1 },
+            border: { display: false },
           },
           y: {
             ticks: {
               callback: function (s, u, o) {
                 return u === 0 ? "" : s;
               },
+              color: "#8796bd",
+              font: {
+                family: "Inter, Pptelegraf, sans-serif",
+                size: 11,
+              },
+              padding: 8,
             },
-            grid: { display: !0 },
+            grid: { display: !0, color: "rgba(135,150,189,0.1)" },
+            border: { display: false },
           },
         },
       },
@@ -24723,29 +24739,45 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
         {
           label: "Total Value",
           data: Array.from({ length: r }, () => 0),
-          borderColor: "rgb(51,182,160)",
+          borderColor: "#204489",
           backgroundColor: e,
           fill: "origin",
-          tension: 0.3,
+          tension: 0.4,
+          borderWidth: 2.5,
+          pointRadius: 0,
+          pointHoverRadius: 6,
+          pointHoverBackgroundColor: "#ffffff",
+          pointHoverBorderColor: "#204489",
+          pointHoverBorderWidth: 2,
         },
         {
           label: "Investment",
           data: Array.from({ length: r }, () => 0),
-          borderColor: "rgb(217,108,87)",
+          borderColor: "#ff6955",
           backgroundColor: t,
           fill: "origin",
-          tension: 0.3,
+          tension: 0.4,
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: "#ffffff",
+          pointHoverBorderColor: "#ff6955",
+          pointHoverBorderWidth: 2,
+          borderDash: [6, 3],
         },
       ];
     return { labels: i, datasets: n };
   }
   function nk(r, e, t) {
-    let i = t.startsWith("rgba"),
-      n = r.createLinearGradient(0, 0, 0, e);
-    if ((n.addColorStop(0, t), i)) n.addColorStop(1, t);
-    else {
-      let a = t.replace(")", ", 0.05)").replace("rgb", "rgba");
-      n.addColorStop(1, a);
+    let n = r.createLinearGradient(0, 0, 0, e);
+    if (t === "primary") {
+      n.addColorStop(0, "rgba(32,68,137,0.25)");
+      n.addColorStop(0.6, "rgba(32,68,137,0.08)");
+      n.addColorStop(1, "rgba(32,68,137,0)");
+    } else {
+      n.addColorStop(0, "rgba(255,105,85,0.12)");
+      n.addColorStop(0.6, "rgba(255,105,85,0.04)");
+      n.addColorStop(1, "rgba(255,105,85,0)");
     }
     return n;
   }
@@ -24824,10 +24856,12 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
     r.data.datasets.forEach((e, t) => {
       let n = r.ctx.createLinearGradient(0, 0, 0, r.height);
       t === 0
-        ? (n.addColorStop(0, "rgba(51,182,160,1)"),
-           n.addColorStop(1, "rgba(51,182,160,0)"))
-        : (n.addColorStop(0, "rgba(217,108,87,1)"),
-           n.addColorStop(1, "rgba(217,108,87,0)"));
+        ? (n.addColorStop(0, "rgba(32,68,137,0.25)"),
+           n.addColorStop(0.6, "rgba(32,68,137,0.08)"),
+           n.addColorStop(1, "rgba(32,68,137,0)"))
+        : (n.addColorStop(0, "rgba(255,105,85,0.12)"),
+           n.addColorStop(0.6, "rgba(255,105,85,0.04)"),
+           n.addColorStop(1, "rgba(255,105,85,0)"));
       e.backgroundColor = n;
     }),
       r.update();
