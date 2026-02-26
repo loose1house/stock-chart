@@ -24651,6 +24651,32 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
       t = Dre(e, r - 1);
     ri = { from: kn(t, "yyyy-MM-dd"), to: kn(e, "yyyy-MM-dd") };
   }
+  var savingsDataLabelsPlugin = {
+    id: "savingsDataLabels",
+    afterDatasetsDraw: function(chart) {
+      var ctx = chart.ctx;
+      chart.data.datasets.forEach(function(dataset, datasetIndex) {
+        var meta = chart.getDatasetMeta(datasetIndex);
+        if (meta.hidden) return;
+        var dataLength = meta.data.length;
+        var step = Math.max(1, Math.floor(dataLength / 6));
+        meta.data.forEach(function(element, index) {
+          if (index !== 0 && index !== dataLength - 1 && index % step !== 0) return;
+          var dataValue = dataset.data[index];
+          if (dataValue === 0 || dataValue === null || dataValue === undefined) return;
+          var formattedValue = Ct(dataValue, Tn);
+          ctx.save();
+          ctx.font = "11px inherit";
+          ctx.fillStyle = datasetIndex === 0 ? "#204489" : "#d16f5b";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "bottom";
+          var yOffset = datasetIndex === 0 ? -10 : -6;
+          ctx.fillText(formattedValue, element.x, element.y + yOffset);
+          ctx.restore();
+        });
+      });
+    }
+  };
   function sie(r) {
     if (!r) {
       console.error("Canvas element is required to initialize the chart.");
@@ -24664,6 +24690,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
     dt = new ak(e, {
       type: "line",
       data: a,
+      plugins: [savingsDataLabelsPlugin],
       options: {
         maintainAspectRatio: !1,
         interaction: {
@@ -24677,12 +24704,12 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
             titleColor: "#ffffff",
             bodyColor: "#ffffff",
             titleFont: {
-              family: "Inter, Pptelegraf, sans-serif",
+              family: "inherit",
               size: 13,
               weight: "600",
             },
             bodyFont: {
-              family: "Inter, Pptelegraf, sans-serif",
+              family: "inherit",
               size: 12,
             },
             padding: 12,
@@ -24698,13 +24725,11 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
           x: {
             ticks: {
               callback: function (s, u, o) {
-                let d = o.length - 1,
-                  c = Math.floor(d / 2);
-                return u % 4 ? this.getLabelForValue(s) : "";
+                return u % 4 === 0 ? this.getLabelForValue(s) : "";
               },
               color: "#8796bd",
               font: {
-                family: "Inter, Pptelegraf, sans-serif",
+                family: "inherit",
                 size: 11,
               },
               maxRotation: 0,
@@ -24719,7 +24744,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
               },
               color: "#8796bd",
               font: {
-                family: "Inter, Pptelegraf, sans-serif",
+                family: "inherit",
                 size: 11,
               },
               padding: 8,
@@ -24753,7 +24778,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
         {
           label: "Investment",
           data: Array.from({ length: r }, () => 0),
-          borderColor: "#ff6955",
+          borderColor: "#d16f5b",
           backgroundColor: t,
           fill: "origin",
           tension: 0.4,
@@ -24761,7 +24786,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
           pointRadius: 0,
           pointHoverRadius: 5,
           pointHoverBackgroundColor: "#ffffff",
-          pointHoverBorderColor: "#ff6955",
+          pointHoverBorderColor: "#d16f5b",
           pointHoverBorderWidth: 2,
           borderDash: [6, 3],
         },
@@ -24775,9 +24800,9 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
       n.addColorStop(0.6, "rgba(32,68,137,0.08)");
       n.addColorStop(1, "rgba(32,68,137,0)");
     } else {
-      n.addColorStop(0, "rgba(255,105,85,0.12)");
-      n.addColorStop(0.6, "rgba(255,105,85,0.04)");
-      n.addColorStop(1, "rgba(255,105,85,0)");
+      n.addColorStop(0, "rgba(209,111,91,0.12)");
+      n.addColorStop(0.6, "rgba(209,111,91,0.04)");
+      n.addColorStop(1, "rgba(209,111,91,0)");
     }
     return n;
   }
@@ -24859,14 +24884,13 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
         ? (n.addColorStop(0, "rgba(32,68,137,0.25)"),
            n.addColorStop(0.6, "rgba(32,68,137,0.08)"),
            n.addColorStop(1, "rgba(32,68,137,0)"))
-        : (n.addColorStop(0, "rgba(255,105,85,0.12)"),
-           n.addColorStop(0.6, "rgba(255,105,85,0.04)"),
-           n.addColorStop(1, "rgba(255,105,85,0)"));
+        : (n.addColorStop(0, "rgba(209,111,91,0.12)"),
+           n.addColorStop(0.6, "rgba(209,111,91,0.04)"),
+           n.addColorStop(1, "rgba(209,111,91,0)"));
       e.backgroundColor = n;
     }),
       r.update();
-  }
-})();
+  }\n})();
 /*!
  * @kurkle/color v0.3.2
  * https://github.com/kurkle/color#readme
