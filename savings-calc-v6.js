@@ -24651,32 +24651,6 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
       t = Dre(e, r - 1);
     ri = { from: kn(t, "yyyy-MM-dd"), to: kn(e, "yyyy-MM-dd") };
   }
-  var savingsDataLabelsPlugin = {
-    id: "savingsDataLabels",
-    afterDatasetsDraw: function(chart) {
-      var ctx = chart.ctx;
-      chart.data.datasets.forEach(function(dataset, datasetIndex) {
-        var meta = chart.getDatasetMeta(datasetIndex);
-        if (meta.hidden) return;
-        var dataLength = meta.data.length;
-        var step = Math.max(1, Math.floor(dataLength / 6));
-        meta.data.forEach(function(element, index) {
-          if (index !== 0 && index !== dataLength - 1 && index % step !== 0) return;
-          var dataValue = dataset.data[index];
-          if (dataValue === 0 || dataValue === null || dataValue === undefined) return;
-          var formattedValue = Ct(dataValue, Tn);
-          ctx.save();
-          ctx.font = "11px inherit";
-          ctx.fillStyle = datasetIndex === 0 ? "#204489" : "#d16f5b";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "bottom";
-          var yOffset = datasetIndex === 0 ? -10 : -6;
-          ctx.fillText(formattedValue, element.x, element.y + yOffset);
-          ctx.restore();
-        });
-      });
-    }
-  };
   function sie(r) {
     if (!r) {
       console.error("Canvas element is required to initialize the chart.");
@@ -24684,73 +24658,41 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
     }
     let e = r.getContext("2d"),
       t = Xe * 12,
-      i = nk(e, r.height, "primary"),
-      n = nk(e, r.height, "accent"),
+      i = nk(e, r.height, "rgba(51,182,160)"),
+      n = nk(e, r.height, "rgba(217,108,87)"),
       a = uie(t, i, n);
     dt = new ak(e, {
       type: "line",
       data: a,
-      plugins: [savingsDataLabelsPlugin],
       options: {
         maintainAspectRatio: !1,
-        interaction: {
-          mode: "index",
-          intersect: false,
-        },
         plugins: {
-          legend: { display: !1 },
-          tooltip: {
-            backgroundColor: "#14161d",
-            titleColor: "#ffffff",
-            bodyColor: "#ffffff",
-            titleFont: {
-              family: "inherit",
-              size: 13,
-              weight: "600",
-            },
-            bodyFont: {
-              family: "inherit",
-              size: 12,
-            },
-            padding: 12,
-            cornerRadius: 8,
-            displayColors: true,
-            boxPadding: 4,
-            caretSize: 6,
-            borderColor: "rgba(135,150,189,0.2)",
-            borderWidth: 1,
+          legend: { display: !0 },
+          chartAreaBorder: {
+            borderColor: "red",
+            borderWidth: 0,
+            borderDash: [5, 5],
+            borderDashOffset: 2,
           },
         },
         scales: {
           x: {
             ticks: {
               callback: function (s, u, o) {
-                return u % 4 === 0 ? this.getLabelForValue(s) : "";
+                let d = o.length - 1,
+                  c = Math.floor(d / 2);
+                return u % 4 ? this.getLabelForValue(s) : "";
               },
-              color: "#8796bd",
-              font: {
-                family: "inherit",
-                size: 11,
-              },
-              maxRotation: 0,
             },
             grid: { display: !1 },
-            border: { display: false },
           },
           y: {
             ticks: {
               callback: function (s, u, o) {
                 return u === 0 ? "" : s;
               },
-              color: "#8796bd",
-              font: {
-                family: "inherit",
-                size: 11,
-              },
-              padding: 8,
             },
-            grid: { display: !0, color: "rgba(135,150,189,0.1)" },
-            border: { display: false },
+            grid: { display: !0 },
           },
         },
       },
@@ -24764,45 +24706,29 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
         {
           label: "Total Value",
           data: Array.from({ length: r }, () => 0),
-          borderColor: "#204489",
+          borderColor: "rgb(51,182,160)",
           backgroundColor: e,
           fill: "origin",
-          tension: 0.4,
-          borderWidth: 2.5,
-          pointRadius: 0,
-          pointHoverRadius: 6,
-          pointHoverBackgroundColor: "#ffffff",
-          pointHoverBorderColor: "#204489",
-          pointHoverBorderWidth: 2,
+          tension: 0.3,
         },
         {
           label: "Investment",
           data: Array.from({ length: r }, () => 0),
-          borderColor: "#d16f5b",
+          borderColor: "rgb(217,108,87)",
           backgroundColor: t,
           fill: "origin",
-          tension: 0.4,
-          borderWidth: 2,
-          pointRadius: 0,
-          pointHoverRadius: 5,
-          pointHoverBackgroundColor: "#ffffff",
-          pointHoverBorderColor: "#d16f5b",
-          pointHoverBorderWidth: 2,
-          borderDash: [6, 3],
+          tension: 0.3,
         },
       ];
     return { labels: i, datasets: n };
   }
   function nk(r, e, t) {
-    let n = r.createLinearGradient(0, 0, 0, e);
-    if (t === "primary") {
-      n.addColorStop(0, "rgba(32,68,137,0.25)");
-      n.addColorStop(0.6, "rgba(32,68,137,0.08)");
-      n.addColorStop(1, "rgba(32,68,137,0)");
-    } else {
-      n.addColorStop(0, "rgba(209,111,91,0.12)");
-      n.addColorStop(0.6, "rgba(209,111,91,0.04)");
-      n.addColorStop(1, "rgba(209,111,91,0)");
+    let i = t.startsWith("rgba"),
+      n = r.createLinearGradient(0, 0, 0, e);
+    if ((n.addColorStop(0, t), i)) n.addColorStop(1, t);
+    else {
+      let a = t.replace(")", ", 0.05)").replace("rgb", "rgba");
+      n.addColorStop(1, a);
     }
     return n;
   }
@@ -24881,16 +24807,15 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
     r.data.datasets.forEach((e, t) => {
       let n = r.ctx.createLinearGradient(0, 0, 0, r.height);
       t === 0
-        ? (n.addColorStop(0, "rgba(32,68,137,0.25)"),
-           n.addColorStop(0.6, "rgba(32,68,137,0.08)"),
-           n.addColorStop(1, "rgba(32,68,137,0)"))
-        : (n.addColorStop(0, "rgba(209,111,91,0.12)"),
-           n.addColorStop(0.6, "rgba(209,111,91,0.04)"),
-           n.addColorStop(1, "rgba(209,111,91,0)"));
+        ? (n.addColorStop(0, "rgba(51,182,160,1)"),
+           n.addColorStop(1, "rgba(51,182,160,0)"))
+        : (n.addColorStop(0, "rgba(217,108,87,1)"),
+           n.addColorStop(1, "rgba(217,108,87,0)"));
       e.backgroundColor = n;
     }),
       r.update();
-  }})();
+  }
+})();
 /*!
  * @kurkle/color v0.3.2
  * https://github.com/kurkle/color#readme
