@@ -24890,7 +24890,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
       e.backgroundColor = n;
     }),
       r.update();
-  }\n})();
+  }})();
 /*!
  * @kurkle/color v0.3.2
  * https://github.com/kurkle/color#readme
