@@ -1,4 +1,5 @@
 (() => {
+  console.log('its alive')
   var lk = Object.defineProperty,
     dk = Object.defineProperties;
   var fk = Object.getOwnPropertyDescriptors;
@@ -24661,18 +24662,138 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
       i = nk(e, r.height, "primary"),
       n = nk(e, r.height, "accent"),
       a = uie(t, i, n);
+    // register a simple plugin that draws the current value
+    // under the cursor in case the built-in tooltip still fails
+    ak.register({
+      id: 'hoverValue',
+      afterEvent(chart, args) {
+        const e = args.event;
+        if (e.type !== 'mousemove') return;
+        const {x, y} = e;
+        const {chartArea} = chart;
+        if (
+          x < chartArea.left || x > chartArea.right ||
+          y < chartArea.top || y > chartArea.bottom
+        ) {
+          chart._hoverValue = null;
+        } else {
+          const xScale = chart.scales.x;
+          const xVal = xScale.getValueForPixel(x);
+          const idx = Math.round(xVal);
+          if (idx >= 0 && idx < chart.data.labels.length) {
+            const label = chart.data.labels[idx];
+            chart._hoverValue = {
+              label,
+              x,
+              values: chart.data.datasets.map((ds, i) => ({
+                label: ds.label,
+                value: ds.data[idx],
+                color: ds.borderColor
+              }))
+            };
+          }
+        }
+        chart.draw();
+      },
+      afterDraw(chart) {
+        if (!chart._hoverValue) return;
+        
+        const {ctx, chartArea} = chart;
+        const {label, values, x} = chart._hoverValue;
+        
+        // Draw vertical line from chart area top to bottom
+        ctx.save();
+        ctx.strokeStyle = 'rgba(135, 150, 189, 0.3)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(x, chartArea.top);
+        ctx.lineTo(x, chartArea.bottom);
+        ctx.stroke();
+        ctx.restore();
+        
+        const boxTop = 10;
+        const boxLeft = chartArea.left + 10;
+        const boxPadding = 18;
+        const boxHeight = 70;
+        const boxWidth = 330;
+        const cornerRadius = 8;
+        
+        // Draw rounded box background
+        ctx.save();
+        ctx.fillStyle = 'rgba(32, 68, 137, 0.12)';
+        ctx.strokeStyle = 'rgba(135, 150, 189, 0.2)';
+        ctx.lineWidth = 1;
+        
+        // Rounded rectangle
+        ctx.beginPath();
+        ctx.moveTo(boxLeft + cornerRadius, boxTop);
+        ctx.lineTo(boxLeft + boxWidth - cornerRadius, boxTop);
+        ctx.quadraticCurveTo(boxLeft + boxWidth, boxTop, boxLeft + boxWidth, boxTop + cornerRadius);
+        ctx.lineTo(boxLeft + boxWidth, boxTop + boxHeight - cornerRadius);
+        ctx.quadraticCurveTo(boxLeft + boxWidth, boxTop + boxHeight, boxLeft + boxWidth - cornerRadius, boxTop + boxHeight);
+        ctx.lineTo(boxLeft + cornerRadius, boxTop + boxHeight);
+        ctx.quadraticCurveTo(boxLeft, boxTop + boxHeight, boxLeft, boxTop + boxHeight - cornerRadius);
+        ctx.lineTo(boxLeft, boxTop + cornerRadius);
+        ctx.quadraticCurveTo(boxLeft, boxTop, boxLeft + cornerRadius, boxTop);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        
+        // Draw label (month/year)
+        ctx.font = 'bold 15px sans-serif';
+        ctx.fillStyle = '#000000';
+        ctx.fillText(label || '', boxLeft + boxPadding, boxTop + boxPadding + 2);
+        
+        // Draw values
+        let yOffset = boxTop + boxPadding + 20;
+        values.forEach((item, idx) => {
+          // Color indicator dot
+          ctx.fillStyle = item.color;
+          ctx.beginPath();
+          ctx.arc(boxLeft + boxPadding, yOffset - 4, 4, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Label and value
+          ctx.font = '15px sans-serif';
+          ctx.fillStyle = '#000000';
+          const formattedValue = typeof item.value === 'number' ? item.value.toFixed(0) : item.value;
+          ctx.fillText(item.label + ': ' + formattedValue, boxLeft + boxPadding + 12, yOffset);
+          yOffset += 18;
+        });
+        
+        ctx.restore();
+      }
+    });
+
+
     dt = new ak(e, {
       type: "line",
       data: a,
       options: {
         maintainAspectRatio: !1,
+        layout: {
+          padding: {
+            top: 90
+          }
+        },
         interaction: {
-          mode: "index",
+          mode: "nearest",
+          axis: "x",
+          intersect: false,
+        },
+        hover: {
+          mode: "nearest",
+          axis: "x",
           intersect: false,
         },
         plugins: {
           legend: { display: !1 },
           tooltip: {
+            enabled: true,
+            mode: "nearest",
+            axis: "x",
+            intersect: false,
             backgroundColor: "#14161d",
             titleColor: "#ffffff",
             bodyColor: "#ffffff",
@@ -24692,7 +24813,24 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
             caretSize: 6,
             borderColor: "rgba(135,150,189,0.2)",
             borderWidth: 1,
+            callbacks: {
+              title: function(tooltipItems) {
+                // show the x-axis label (month/year)
+                return tooltipItems.length ? tooltipItems[0].label : "";
+              },
+              label: function(context) {
+                console.log('tooltip label callback', context);
+                var label = context.dataset.label || "";
+                if (label) {
+                  label += ": ";
+                }
+                label += context.formattedValue;
+                return label;
+              }
+            }
           },
+
+
         },
         scales: {
           x: {
@@ -24704,7 +24842,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
               },
               color: "#8796bd",
               font: {
-                family: "Inter, Pptelegraf, sans-serif",
+                
                 size: 11,
               },
               maxRotation: 0,
@@ -24719,7 +24857,6 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
               },
               color: "#8796bd",
               font: {
-                family: "Inter, Pptelegraf, sans-serif",
                 size: 11,
               },
               padding: 8,
